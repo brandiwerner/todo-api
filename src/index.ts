@@ -2,13 +2,14 @@ import { config } from "dotenv"
 import { v4 as uuidv4 } from 'uuid';
 import express from 'express';
 import { MongoClient } from 'mongodb';
+import cors from 'cors';
 
 let mongoClient: MongoClient
 
 config()
 
 const app = express()
-const port = 3000
+const port = 3001
 
 // Database Connection
 const CONNECTION_URL = process.env.DB_CONNECTION_URL as string
@@ -19,6 +20,8 @@ app.use(express.json());
 
 //Parse URL-encoded bodies
 app.use(express.urlencoded({ extended: true}));
+
+app.use(cors());
 
 enum Priority {
     High = 'High',
