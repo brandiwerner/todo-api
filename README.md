@@ -14,4 +14,7 @@ This project is the api for the todo list application found [here](https://githu
 
 Note: To connect to the database you will need to provide the Database Connection URL via the following steps:
 1. Create a `.env` file at the root of this project
-2. Add a `DB_CONNECTION_URL` variable to the file and set it to your Database Connection URL
+2. Add a `DB_CONNECTION_URL` variable to the file and set it to your Database Connection URL like so 
+``` 
+DB_CONNECTION_URL=yourURL
+```
