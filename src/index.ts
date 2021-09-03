@@ -11,6 +11,12 @@ config()
 const app = express()
 const port = 3001
 
+
+const sleep = (duration: number = 250) => new Promise((resolve) => {
+    setTimeout(resolve, duration)
+})
+
+
 // Database Connection
 const CONNECTION_URL = process.env.DB_CONNECTION_URL as string
 const DATABASE_NAME = "todo";
@@ -19,7 +25,7 @@ const DATABASE_NAME = "todo";
 app.use(express.json());
 
 //Parse URL-encoded bodies
-app.use(express.urlencoded({ extended: true}));
+app.use(express.urlencoded({ extended: true }));
 
 app.use(cors());
 
@@ -47,7 +53,9 @@ app.get('/todos', async (req, res) => {
     const collection = mongoClient.db(DATABASE_NAME).collection('todos')
     const foundData = await collection.find();
 
-    const todos =  await foundData.toArray();
+    const todos = await foundData.toArray();
+
+    await sleep()
 
     res.json(todos);
 })
@@ -59,8 +67,8 @@ app.get('/todos/:id', async (req, res) => {
     const id = req.params.id;
 
     const collection = mongoClient.db(DATABASE_NAME).collection('todos')
-    const foundData = await collection.findOne({id});
-    
+    const foundData = await collection.findOne({ id });
+
     res.json(foundData);
 })
 
@@ -83,11 +91,11 @@ app.post('/todos', async (req, res) => {
         res.status(400).json({
             error: "Invalid priority provided."
         })
-        
+
         return
     }
 
-    const isEnum = payload.priority === Priority.High ||  payload.priority === Priority.Medium || payload.priority === Priority.Low 
+    const isEnum = payload.priority === Priority.High || payload.priority === Priority.Medium || payload.priority === Priority.Low
     if (!isEnum) {
         res.status(400).json({
             error: "Invalid priority provided."
@@ -126,7 +134,7 @@ app.post('/todos', async (req, res) => {
  * Delete a new todo
  */
 app.delete('/todos/:id', async (req, res) => {
-    const id =  req.params.id;
+    const id = req.params.id;
 
     // Validate payload contains all require keys
     if (!id || typeof id !== "string") {
@@ -138,16 +146,16 @@ app.delete('/todos/:id', async (req, res) => {
     }
 
     const collection = mongoClient.db(DATABASE_NAME).collection('todos')
-    await collection.deleteOne({id})
+    await collection.deleteOne({ id })
 
-    res.json({message: 'Todo Item successfully deleted'});
+    res.json({ message: 'Todo Item successfully deleted' });
 })
 
 /**
  * Edit a todo
  */
 app.patch('/todos/:id', async (req, res) => {
-    const id =  req.params.id;
+    const id = req.params.id;
     const payload: EditTodoTaskDTO = req.body;
 
     // Validate payload contains all require keys
@@ -162,7 +170,7 @@ app.patch('/todos/:id', async (req, res) => {
     const collection = mongoClient.db(DATABASE_NAME).collection('todos');
 
     // Get the todo
-    const todo = await collection.findOne({id});
+    const todo = await collection.findOne({ id });
 
     // Merge old todo and updated data
     const draftTodo = {
@@ -179,10 +187,10 @@ app.patch('/todos/:id', async (req, res) => {
         }
     }).reduce((prev, [key, value]) => ({ ...prev, [key]: value }), {})
 
-    const updatedTodo = await collection.updateOne({id}, {$set: normalizedDraftTodo})
+    const updatedTodo = await collection.updateOne({ id }, { $set: normalizedDraftTodo })
 
     // Get the todo
-    const newTodo = await collection.findOne({id});
+    const newTodo = await collection.findOne({ id });
 
     res.json(newTodo);
 })
@@ -190,7 +198,7 @@ app.patch('/todos/:id', async (req, res) => {
 app.listen(port, () => {
     try {
         MongoClient.connect(CONNECTION_URL, (error, client) => {
-            if(error) {
+            if (error) {
                 throw error;
             }
             if (client) {
